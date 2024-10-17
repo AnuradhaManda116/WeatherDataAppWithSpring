@@ -10,9 +10,9 @@ name: Cloudformation template
  
 on:
   push:
-    branches: [ "master" ]
+    branches: [ "main" ]
   pull_request:
-    branches: [ "master" ]
+    branches: [ "main" ]
  
 jobs:
   build:
@@ -32,7 +32,7 @@ jobs:
  
     - uses: actions/upload-artifact@v4
       with:
-        name: awsWeatherApiCasestudy-lambda-package
+        name: Weather-Data-App-0.0.1-SNAPSHOT-lambda-package
         path: ./target
  
     - name: Configure AWS Credentials
