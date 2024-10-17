@@ -68,5 +68,5 @@ jobs:
       uses: aws-actions/aws-cloudformation-github-deploy@v1
       with:
         name: new-aws-weather-app-stack
-        template: https://aws-weather-app-bucket.s3.amazonaws.com/template.yaml
+        template: https://aws-weather-app-bucket.s3.amazonaws.com/template.yml
         no-fail-on-empty-changeset: "1"
