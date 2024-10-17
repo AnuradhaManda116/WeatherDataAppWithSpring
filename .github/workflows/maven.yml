@@ -45,7 +45,7 @@ jobs:
     - name: Upload artifact zip to S3 bucket
       run: aws s3 cp ./target/Weather-Data-App-0.0.1-SNAPSHOT-lambda-package.zip s3://aws-weather-app-bucket/
     - name: Upload cloudformation template to S3 bucket
-      run: aws s3 cp ./template.yaml s3://aws-weather-app-bucket/
+      run: aws s3 cp ./template.yml s3://aws-weather-app-bucket/
  
   deploy:
     runs-on: ubuntu-latest
