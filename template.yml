@@ -1,0 +1,45 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: This is a Weather data collector app using S3, DynamoDB, Lambda and API Gateway
+Globals:
+  Api:
+    EndpointConfiguration: REGIONAL
+
+Resources:
+  WeatherDataAppFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: org.example.StreamLambdaHandler::handleRequest
+      Runtime: java21
+      CodeUri: .
+      MemorySize: 512
+      Policies: AWSLambdaBasicExecutionRole
+      Timeout: 30
+      Events:
+        Api1:
+          Type: HttpApi
+          Properties:
+            Path: /{proxy+}
+            Method: GET
+
+  WeatherData:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: "WeatherData"
+      AttributeDefinitions:
+        - AttributeName: "id"
+          AttributeType: "S"
+      KeySchema:
+        - AttributeName: "id"
+          KeyType: "HASH"
+      ProvisionedThroughput:
+        ReadCapacityUnits: "10"
+        WriteCapacityUnits: "5"
+
+Outputs:
+  WeatherDataAppApi:
+    Description: URL for application
+    Value: !Sub 'https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/ping'
+    Export:
+      Name: WeatherDataAppApi
+
