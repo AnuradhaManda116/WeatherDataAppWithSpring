@@ -5,6 +5,7 @@ Globals:
   Api:
     EndpointConfiguration: REGIONAL
 
+Resources:
 LambdaExecutionRole:
     Type: AWS::IAM::Role
     Properties:
@@ -38,7 +39,7 @@ LambdaExecutionRole:
         UpdateRuntimeOn: "Auto"
       Handler: "org.example.StreamLambdaHandler::handleRequest"
       Code:
-        S3Bucket: weatherdataappbucket
+        S3Bucket: aws-weather-app-bucket-am
         S3Key: Weather-Data-App-0.0.1-SNAPSHOT-lambda-package.zip
       Role: !GetAtt LambdaExecutionRole.Arn
       FileSystemConfigs: []
@@ -144,4 +145,3 @@ Outputs:
     Value: !Sub 'https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/ping'
     Export:
       Name: WeatherDataAppApi
-
