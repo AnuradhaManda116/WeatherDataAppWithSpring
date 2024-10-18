@@ -1,12 +1,8 @@
-AWSTemplateFormatVersion: '2010-09-09'
-Transform: AWS::Serverless-2016-10-31
+AWSTemplateFormatVersion: "2010-09-09"
 Description: This is a Weather data collector app using S3, DynamoDB, Lambda and API Gateway
-Globals:
-  Api:
-    EndpointConfiguration: REGIONAL
-
 Resources:
-LambdaExecutionRole:
+  
+  LambdaExecutionRole:
     Type: AWS::IAM::Role
     Properties:
       AssumeRolePolicyDocument:
@@ -18,9 +14,9 @@ LambdaExecutionRole:
                 - lambda.amazonaws.com
                 - s3.amazonaws.com
             Action:
-              - "sts:AssumeRole"
-      Description: IAM Role for Lambda to access S3 bucket
-      ManagedPolicyArns:
+              - 'sts:AssumeRole'
+      Description: IAM role for lambda to access s3 and dynamodb 
+      ManagedPolicyArns: 
         - arn:aws:iam::aws:policy/AmazonS3FullAccess
         - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
         - arn:aws:iam::aws:policy/AmazonDynamoDBFullAccess
@@ -28,7 +24,7 @@ LambdaExecutionRole:
 
   LambdaFunctionSpringFunction:
     DependsOn: LambdaExecutionRole
-    Type: AWS::Lambda::Function
+    Type: "AWS::Lambda::Function"
     Properties:
       MemorySize: 512
       Description: ""
@@ -53,9 +49,7 @@ LambdaExecutionRole:
       EphemeralStorage:
         Size: 512
       Architectures:
-        - "x86_64"
-
-    Description: List Amazon S3 buckets in us-east-1
+      - "x86_64"
 
   DynamoDBTableWeatherData:
     Type: "AWS::DynamoDB::Table"
@@ -64,16 +58,16 @@ LambdaExecutionRole:
         SSEEnabled: false
       TableName: "WeatherData"
       AttributeDefinitions:
-        - AttributeType: "S"
-          AttributeName: "id"
+      - AttributeType: "S"
+        AttributeName: "id"
       ContributorInsightsSpecification:
         Enabled: false
       BillingMode: "PAY_PER_REQUEST"
       PointInTimeRecoverySpecification:
         PointInTimeRecoveryEnabled: false
       KeySchema:
-        - KeyType: "HASH"
-          AttributeName: "id"
+      - KeyType: "HASH"
+        AttributeName: "id"
       DeletionProtectionEnabled: false
       TableClass: "STANDARD"
       Tags: []
@@ -83,19 +77,19 @@ LambdaExecutionRole:
   weatherRestAPI:
     Type: AWS::ApiGateway::RestApi
     Properties:
-      Name: weatherdataAPI
+      Name: weatherDataAPI
 
   ProxyResource:
-    Type: "AWS::ApiGateway::Resource"
-    Properties:
-      RestApiId: !Ref weatherRestAPI
-      ParentId: !GetAtt
-        - weatherRestAPI
-        - RootResourceId
-      PathPart: "{proxy+}"
+      Type: 'AWS::ApiGateway::Resource'
+      Properties:
+        RestApiId: !Ref weatherRestAPI
+        ParentId: !GetAtt 
+          - weatherRestAPI
+          - RootResourceId
+        PathPart: '{proxy+}'
 
   ProxyResourceANY:
-    Type: "AWS::ApiGateway::Method"
+    Type: 'AWS::ApiGateway::Method'
     Properties:
       RestApiId: !Ref weatherRestAPI
       ResourceId: !Ref ProxyResource
@@ -104,23 +98,24 @@ LambdaExecutionRole:
       Integration:
         Type: AWS_PROXY
         IntegrationHttpMethod: POST
-        Uri: !Sub "arn:aws:apigateway:us-east-1:lambda:path/2015-03-31/functions/${LambdaFunctionSpringFunction.Arn}/invocations"
-
+        Uri: !Sub 'arn:aws:apigateway:us-east-1:lambda:path/2015-03-31/functions/${LambdaFunctionSpringFunction.Arn}/invocations'
+  
   Deployment:
-    Type: "AWS::ApiGateway::Deployment"
-    Properties:
-      RestApiId: !Ref weatherRestAPI
-      Description: My deployment
-      StageName: mystage
+        Type: 'AWS::ApiGateway::Deployment'
+        DependsOn: ProxyResourceANY
+        Properties:
+          RestApiId: !Ref weatherRestAPI
+          Description: My deployment
+          StageName: dev
 
   LambdaInvokPermissions:
-    Type: AWS::Lambda::Permission
-    Properties:
-      FunctionName: !Ref LambdaFunctionSpringFunction
-      Action: lambda:InvokeFunction
-      Principal: apigateway.amazonaws.com
-      SourceAccount: 266226424630
-
+          Type: AWS::Lambda::Permission
+          Properties:
+            FunctionName: !Ref LambdaFunctionSpringFunction
+            Action: lambda:InvokeFunction
+            Principal: apigateway.amazonaws.com
+            SourceAccount: 141138260180
+  
   SpringEventRule:
     Type: AWS::Events::Rule
     Properties:
@@ -129,8 +124,8 @@ LambdaExecutionRole:
         - Id: !Ref LambdaFunctionSpringFunction
           Arn: !GetAtt LambdaFunctionSpringFunction.Arn
       State: "ENABLED"
-      Name: "SpringLambdaEvent"
-
+      Name: "SpringLambdaEvent"    
+  
   SpringEventRuleToSpringFunctionConnector:
     Type: AWS::Lambda::Permission
     Properties:
@@ -138,10 +133,3 @@ LambdaExecutionRole:
       Action: lambda:InvokeFunction
       Principal: events.amazonaws.com
       SourceArn: !GetAtt SpringEventRule.Arn
-
-Outputs:
-  WeatherDataAppApi:
-    Description: URL for application
-    Value: !Sub 'https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/ping'
-    Export:
-      Name: WeatherDataAppApi

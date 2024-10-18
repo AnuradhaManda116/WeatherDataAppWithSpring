@@ -16,10 +16,10 @@ import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapper;
 @Configuration
 public class DynamoDBConfig {
 	
-	@Value("${aws.dynamodb.accesskey}")
+	@Value("${aws-access-key-id}")
     private String awsAccessKey;
 
-    @Value("${aws.dynamodb.secretkey}")
+    @Value("${aws-secret-access-key}")
     private String awsSecretKey;
 
     @Value("${aws.dynamodb.endpoint}")
