@@ -28,6 +28,10 @@ Resources:
     Properties:
       MemorySize: 512
       Description: ""
+      Environment:
+        Variables:
+          TABLE_NAME: !Ref DynamoDBTableWeatherData
+          MY_AWS_REGION: 'us-east-1'
       TracingConfig:
         Mode: "PassThrough"
       Timeout: 15
