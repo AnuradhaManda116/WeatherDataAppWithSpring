@@ -20,7 +20,7 @@ Resources:
           Type: HttpApi
           Properties:
             Path: /{proxy+}
-            Method: GET
+            Method: POST
 
   WeatherData:
     Type: AWS::DynamoDB::Table
