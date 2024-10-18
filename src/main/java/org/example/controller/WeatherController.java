@@ -27,9 +27,8 @@ public class WeatherController {
 	 }
 	 
 	 @PostMapping("/add")
-	 public ResponseEntity<WeatherData> getWeathertwo(@RequestBody String city) throws JsonProcessingException {
-	    	WeatherData weatherData = weatherService.getWeatherOfCity(city);
-	        return ResponseEntity.ok(weatherData);
+	 public WeatherData getWeathertwo(@RequestBody String city) throws JsonProcessingException {
+	    	return this.weatherService.getWeatherOfCity(city);
 	 }
 	 
      @DeleteMapping("/{id}")

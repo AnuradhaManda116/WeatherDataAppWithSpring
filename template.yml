@@ -15,11 +15,7 @@ Resources:
                 - s3.amazonaws.com
             Action:
               - 'sts:AssumeRole'
-      Description: IAM role for lambda to access s3 and dynamodb 
-      ManagedPolicyArns: 
-        - arn:aws:iam::aws:policy/AmazonS3FullAccess
-        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
-        - arn:aws:iam::aws:policy/AmazonDynamoDBFullAccess
+      Description: IAM role for lambda to access s3 and dynamodb
       RoleName: LambdaExecutionRole
 
   LambdaFunctionSpringFunction:
