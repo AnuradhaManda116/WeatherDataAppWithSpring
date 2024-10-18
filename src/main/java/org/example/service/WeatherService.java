@@ -37,6 +37,5 @@ public class WeatherService {
     public String deleteById(String id){
         dynamoDBMapper.delete(id);
         return "Data deleted successfully...!";
-
     }
 }
