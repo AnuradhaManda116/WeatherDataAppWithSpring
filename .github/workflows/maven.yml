@@ -43,9 +43,9 @@ jobs:
         aws-region: us-east-1
  
     - name: Upload artifact zip to S3 bucket
-      run: aws s3 cp ./target/Weather-Data-App-0.0.1-SNAPSHOT-lambda-package.zip s3://aws-weather-app-bucket/
+      run: aws s3 cp ./target/Weather-Data-App-0.0.1-SNAPSHOT-lambda-package.zip s3://aws-weather-app-bucket-am/
     - name: Upload cloudformation template to S3 bucket
-      run: aws s3 cp ./template.yml s3://aws-weather-app-bucket/
+      run: aws s3 cp ./template.yml s3://aws-weather-app-bucket-am/
  
   deploy:
     runs-on: ubuntu-latest
@@ -68,5 +68,5 @@ jobs:
       uses: aws-actions/aws-cloudformation-github-deploy@v1
       with:
         name: new-aws-weather-app-stack
-        template: https://aws-weather-app-bucket.s3.amazonaws.com/template.yml
+        template: https://aws-weather-app-bucket-am.s3.amazonaws.com/template.yml
         no-fail-on-empty-changeset: "1"
