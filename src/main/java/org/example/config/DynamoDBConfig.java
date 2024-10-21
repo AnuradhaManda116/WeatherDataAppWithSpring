@@ -1,63 +1,45 @@
 package org.example.config;
 
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-
-import com.amazonaws.auth.AWSCredentials;
-import com.amazonaws.auth.AWSCredentialsProvider;
 import com.amazonaws.auth.AWSStaticCredentialsProvider;
 import com.amazonaws.auth.BasicAWSCredentials;
-import com.amazonaws.auth.InstanceProfileCredentialsProvider;
 import com.amazonaws.client.builder.AwsClientBuilder;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDB;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClientBuilder;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapper;
+import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapperConfig;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
+import org.socialsignin.spring.data.dynamodb.repository.config.EnableDynamoDBRepositories;
 
 @Configuration
+@EnableDynamoDBRepositories(basePackages = "com.example.demo.repositories")
 public class DynamoDBConfig {
-	
-//	@Value("${aws-access-key-id}")
-//    private String awsAccessKey;
+
+//    @Value("${aws.dynamodb.accessKey}")
+//    private String accessKey;
 //
-//    @Value("${aws-secret-access-key}")
-//    private String awsSecretKey;
+//    @Value("${aws.dynamodb.secretKey}")
+//    private String secretKey;
+
+    @Value("${aws.dynamodb.region}")
+    private String region;
 
     @Value("${aws.dynamodb.endpoint}")
-    private String awsDynamoDBEndPoint;
+    private String endpoint;
 
-//    @Value("${aws.dynamodb.region}")
-//    private String awsRegion;
-    
     @Bean
     public AmazonDynamoDB amazonDynamoDB() {
-        AmazonDynamoDBClientBuilder builder = AmazonDynamoDBClientBuilder.standard()
-                .withCredentials(new InstanceProfileCredentialsProvider(false));
-
-        if (!awsDynamoDBEndPoint.isEmpty()) {
-            builder.withEndpointConfiguration(new AwsClientBuilder.EndpointConfiguration(awsDynamoDBEndPoint, "us-east-1"));
-        }
-
-        return builder.build();
+        return AmazonDynamoDBClientBuilder.standard()
+                .withEndpointConfiguration(new AwsClientBuilder.EndpointConfiguration(endpoint, region))
+                //.withCredentials(new AWSStaticCredentialsProvider(new BasicAWSCredentials(accessKey, secretKey)))
+                .build();
     }
-    
-//    @Bean
-//    public AWSCredentials amazonAWSCredentials() {
-//        return new BasicAWSCredentials(this.awsAccessKey, this.awsSecretKey);
-//    }
-//
-//    @Bean
-//    public AWSCredentialsProvider amazonAWSCredentialsProvider() {
-//        return new AWSStaticCredentialsProvider(this.amazonAWSCredentials());
-//    }
-//
-//    @Bean
-//    public AmazonDynamoDB amazonDynamoDB() {
-//        return (AmazonDynamoDB)((AmazonDynamoDBClientBuilder)((AmazonDynamoDBClientBuilder)AmazonDynamoDBClientBuilder.standard().withEndpointConfiguration(new AwsClientBuilder.EndpointConfiguration(this.awsDynamoDBEndPoint, this.awsRegion))).withCredentials(this.amazonAWSCredentialsProvider())).build();
-//    }
 
     @Bean
-    public DynamoDBMapper mapper() {
-        return new DynamoDBMapper(this.amazonDynamoDB());
+    @Primary
+    public DynamoDBMapper dynamoDBMapper(AmazonDynamoDB amazonDynamoDB) {
+        return new DynamoDBMapper(amazonDynamoDB);
     }
 }

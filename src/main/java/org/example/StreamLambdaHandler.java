@@ -2,6 +2,8 @@ package org.example;
 
 
 import com.amazonaws.serverless.exceptions.ContainerInitializationException;
+import com.amazonaws.serverless.proxy.internal.servlet.AwsProxyHttpServletRequest;
+import com.amazonaws.serverless.proxy.internal.servlet.AwsProxyHttpServletRequestReader;
 import com.amazonaws.serverless.proxy.model.AwsProxyRequest;
 import com.amazonaws.serverless.proxy.model.AwsProxyResponse;
 import com.amazonaws.serverless.proxy.spring.SpringBootLambdaContainerHandler;
@@ -28,6 +30,7 @@ public class StreamLambdaHandler implements RequestStreamHandler {
     @Override
     public void handleRequest(InputStream inputStream, OutputStream outputStream, Context context)
             throws IOException {
+    	//AwsProxyHttpServletRequest request = new AwsProxyHttpServletRequestReader().readRequest(inputStream, context);
         handler.proxyStream(inputStream, outputStream, context);
     }
 }

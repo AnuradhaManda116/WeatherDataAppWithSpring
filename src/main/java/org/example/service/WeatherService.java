@@ -29,6 +29,7 @@ public class WeatherService {
         Map<String, String> params = Map.of("city", city);
         log.info("Sending request to OpenWeather API with params {}", city);
         WeatherData weatherData = (WeatherData)this.restTemplate.getForObject(this.weatherUri, WeatherData.class, params);
+        log.info("Sending request to OpenWeather API with params {}", weatherData);
         this.dynamoDBMapper.save(weatherData);
         log.info("Successfully saved data in Dynamo DB for id {}", weatherData.getId());
         return weatherData;
