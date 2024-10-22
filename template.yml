@@ -43,12 +43,12 @@ Resources:
         S3Key: Weather-Data-App-0.0.1-SNAPSHOT-lambda-package.zip
       Role: !GetAtt LambdaExecutionRole.Arn
       FileSystemConfigs: []
-      FunctionName: "SpringFunction"
+      FunctionName: "SpringLambdaFunction"
       Runtime: "java21"
       PackageType: "Zip"
       LoggingConfig:
         LogFormat: "Text"
-        LogGroup: "/aws/lambda/SpringFunction"
+        LogGroup: "/aws/lambda/SpringLambdaFunction"
       RecursiveLoop: "Terminate"
       EphemeralStorage:
         Size: 512
