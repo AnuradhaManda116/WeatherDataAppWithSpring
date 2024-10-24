@@ -164,11 +164,6 @@ Resources:
       StageName: 'dev'
       RestApiId: !Ref weatherRestAPI
       DeploymentId: !Ref MyApiDeployment
-      MethodSettings:
-        - ResourcePath: '/*'
-          HttpMethod: '*'
-          LoggingLevel: 'INFO'
-          DataTraceEnabled: true
       AccessLogSetting:
         DestinationArn: !GetAtt MyLogGroup.Arn
         Format: 
@@ -176,6 +171,7 @@ Resources:
 
   MyApiDeployment:
     Type: 'AWS::ApiGateway::Deployment'
+    DependsOn: ProxyResourceANY
     Properties:
       RestApiId: !Ref weatherRestAPI
       StageName: 'dev'
