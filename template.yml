@@ -1,12 +1,11 @@
-AWSTemplateFormatVersion: "2010-09-09"
+AWSTemplateFormatVersion: '2010-09-09'
 Description: This is a Weather data collector app using S3, DynamoDB, Lambda and API Gateway
 Resources:
-  
   LambdaExecutionRole:
     Type: AWS::IAM::Role
     Properties:
       AssumeRolePolicyDocument:
-        Version: "2012-10-17"
+        Version: '2012-10-17'
         Statement:
           - Effect: Allow
             Principal:
@@ -14,86 +13,79 @@ Resources:
                 - lambda.amazonaws.com
                 - s3.amazonaws.com
             Action:
-              - 'sts:AssumeRole'
+              - sts:AssumeRole
       Description: IAM role for lambda to access s3 and dynamodb
-      ManagedPolicyArns: 
+      ManagedPolicyArns:
         - arn:aws:iam::aws:policy/AmazonS3FullAccess
         - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
         - arn:aws:iam::aws:policy/AmazonDynamoDBFullAccess
       RoleName: LambdaExecutionRole
-
   LambdaFunctionSpringFunction:
     DependsOn: LambdaExecutionRole
-    Type: "AWS::Lambda::Function"
+    Type: AWS::Lambda::Function
     Properties:
       MemorySize: 512
-      Description: ""
+      Description: ''
       Environment:
         Variables:
           TABLE_NAME: !Ref DynamoDBTableWeatherData
-          MY_AWS_REGION: 'us-east-1'
+          MY_AWS_REGION: us-east-1
       TracingConfig:
-        Mode: "PassThrough"
+        Mode: PassThrough
       Timeout: 15
       RuntimeManagementConfig:
-        UpdateRuntimeOn: "Auto"
-      Handler: "org.example.StreamLambdaHandler::handleRequest"
+        UpdateRuntimeOn: Auto
+      Handler: org.example.StreamLambdaHandler::handleRequest
       Code:
         S3Bucket: aws-weather-app-bucket-am
         S3Key: Weather-Data-App-0.0.1-SNAPSHOT-lambda-package.zip
       Role: !GetAtt LambdaExecutionRole.Arn
       FileSystemConfigs: []
-      FunctionName: "SpringLambdaFunction"
-      Runtime: "java21"
-      PackageType: "Zip"
+      FunctionName: SpringLambdaFunction
+      Runtime: java21
+      PackageType: Zip
       LoggingConfig:
-        LogFormat: "Text"
-        LogGroup: "/aws/lambda/SpringLambdaFunction"
-      RecursiveLoop: "Terminate"
+        LogFormat: Text
+        LogGroup: /aws/lambda/SpringLambdaFunction
+      RecursiveLoop: Terminate
       EphemeralStorage:
         Size: 512
       Architectures:
-      - "x86_64"
-
+        - x86_64
   DynamoDBTableWeatherData:
-    Type: "AWS::DynamoDB::Table"
+    Type: AWS::DynamoDB::Table
     Properties:
       SSESpecification:
         SSEEnabled: false
-      TableName: "WeatherData"
+      TableName: WeatherData
       AttributeDefinitions:
-      - AttributeType: "S"
-        AttributeName: "id"
+        - AttributeType: S
+          AttributeName: id
       ContributorInsightsSpecification:
         Enabled: false
-      BillingMode: "PAY_PER_REQUEST"
+      BillingMode: PAY_PER_REQUEST
       PointInTimeRecoverySpecification:
         PointInTimeRecoveryEnabled: false
       KeySchema:
-      - KeyType: "HASH"
-        AttributeName: "id"
+        - KeyType: HASH
+          AttributeName: id
       DeletionProtectionEnabled: false
-      TableClass: "STANDARD"
+      TableClass: STANDARD
       Tags: []
       TimeToLiveSpecification:
         Enabled: false
-
   weatherRestAPI:
     Type: AWS::ApiGateway::RestApi
     Properties:
       Name: weatherDataAPI
-
   ProxyResource:
-      Type: 'AWS::ApiGateway::Resource'
-      Properties:
-        RestApiId: !Ref weatherRestAPI
-        ParentId: !GetAtt 
-          - weatherRestAPI
-          - RootResourceId
-        PathPart: '{proxy+}'
-
+    Type: AWS::ApiGateway::Resource
+    Properties:
+      RestApiId: !Ref weatherRestAPI
+      ParentId: !GetAtt weatherRestAPI.RootResourceId
+      PathPart: '{proxy+}'
   ProxyResourceANY:
-    Type: 'AWS::ApiGateway::Method'
+    Type: AWS::ApiGateway::Method
     Properties:
       RestApiId: !Ref weatherRestAPI
       ResourceId: !Ref ProxyResource
@@ -102,52 +94,49 @@ Resources:
       Integration:
         Type: AWS_PROXY
         IntegrationHttpMethod: POST
-        Uri: !Sub 'arn:aws:apigateway:us-east-1:lambda:path/2015-03-31/functions/${LambdaFunctionSpringFunction.Arn}/invocations'
-  
+        Uri: !Sub arn:aws:apigateway:us-east-1:lambda:path/2015-03-31/functions/${LambdaFunctionSpringFunction.Arn}/invocations
   Deployment:
-        Type: 'AWS::ApiGateway::Deployment'
-        DependsOn: ProxyResourceANY
-        Properties:
-          RestApiId: !Ref weatherRestAPI
-          Description: My deployment
-          StageName: dev
-
+    Type: AWS::ApiGateway::Deployment
+    DependsOn: ProxyResourceANY
+    Properties:
+      RestApiId: !Ref weatherRestAPI
+      Description: My deployment
+      StageName: dev
   LambdaInvokPermissions:
-          Type: AWS::Lambda::Permission
-          Properties:
-            FunctionName: !Ref LambdaFunctionSpringFunction
-            Action: lambda:InvokeFunction
-            Principal: apigateway.amazonaws.com
-            SourceAccount: 141138260180
-  
+    Type: AWS::Lambda::Permission
+    Properties:
+      FunctionName: !Ref LambdaFunctionSpringFunction
+      Action: lambda:InvokeFunction
+      Principal: apigateway.amazonaws.com
+      SourceAccount: 141138260180
   SpringEventRule:
     Type: AWS::Events::Rule
     Properties:
-      ScheduleExpression: "rate(5 minutes)"
+      ScheduleExpression: rate(5 minutes)
       Targets:
         - Id: !Ref LambdaFunctionSpringFunction
           Arn: !GetAtt LambdaFunctionSpringFunction.Arn
-      State: "ENABLED"
-      Name: "SpringLambdaEvent"    
-  
+      State: ENABLED
+      Name: SpringLambdaEvent
+
   CloudWatchRole:
-  Type: 'AWS::IAM::Role'
-  Properties:
-    AssumeRolePolicyDocument:
-      Version: 2012-10-17
-      Statement:
+    Type: 'AWS::IAM::Role'
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
         - Effect: Allow
           Principal:
             Service:
               - apigateway.amazonaws.com
           Action: 'sts:AssumeRole'
-    Path: /
-    ManagedPolicyArns:
+      Path: /
+      ManagedPolicyArns:
       - >-
         arn:aws:iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs
   Account:
-  Type: 'AWS::ApiGateway::Account'
-  Properties:
-    CloudWatchRoleArn: !GetAtt 
+    Type: 'AWS::ApiGateway::Account'
+    Properties:
+      CloudWatchRoleArn: !GetAtt 
       - CloudWatchRole
       - Arn
