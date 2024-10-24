@@ -132,21 +132,6 @@ Resources:
             Service:
               - apigateway.amazonaws.com
           Action: 'sts:AssumeRole'
-      Policies:
-        - PolicyName: 'ApiGatewayLogsPolicy'
-          PolicyDocument:
-            Version: '2012-10-17'
-            Statement:
-              - Effect: 'Allow'
-                Action:
-                  - 'logs:CreateLogGroup'
-                  - 'logs:CreateLogStream'
-                  - 'logs:DescribeLogGroups'
-                  - 'logs:DescribeLogStreams'
-                  - 'logs:PutLogEvents'
-                  - 'logs:GetLogEvents'
-                  - 'logs:FilterLogEvents'
-                Resource: '*'
       Path: /
       ManagedPolicyArns:
         - >-
@@ -165,5 +150,3 @@ Resources:
       DeploymentId: !Ref MyApiDeployment
       AccessLogSetting:
         DestinationArn: !GetAtt MyLogGroup.Arn
-        Format: 
-          '{"requestId":"$context.requestId","ip":"$context.identity.sourceIp","caller":"$context.identity.caller","user":"$context.identity.user","requestTime":"$context.requestTime","httpMethod":"$context.httpMethod","resourcePath":"$context.resourcePath","status":"$context.status","protocol":"$context.protocol","responseLength":"$context.responseLength"}'
