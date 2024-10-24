@@ -95,13 +95,12 @@ Resources:
         Type: AWS_PROXY
         IntegrationHttpMethod: POST
         Uri: !Sub arn:aws:apigateway:us-east-1:lambda:path/2015-03-31/functions/${LambdaFunctionSpringFunction.Arn}/invocations
-  Deployment:
-    Type: AWS::ApiGateway::Deployment
+  MyApiDeployment:
+    Type: 'AWS::ApiGateway::Deployment'
     DependsOn: ProxyResourceANY
     Properties:
       RestApiId: !Ref weatherRestAPI
-      Description: My deployment
-      StageName: dev
+      StageName: 'dev'
   LambdaInvokPermissions:
     Type: AWS::Lambda::Permission
     Properties:
@@ -168,10 +167,3 @@ Resources:
         DestinationArn: !GetAtt MyLogGroup.Arn
         Format: 
           '{"requestId":"$context.requestId","ip":"$context.identity.sourceIp","caller":"$context.identity.caller","user":"$context.identity.user","requestTime":"$context.requestTime","httpMethod":"$context.httpMethod","resourcePath":"$context.resourcePath","status":"$context.status","protocol":"$context.protocol","responseLength":"$context.responseLength"}'
-
-  MyApiDeployment:
-    Type: 'AWS::ApiGateway::Deployment'
-    DependsOn: ProxyResourceANY
-    Properties:
-      RestApiId: !Ref weatherRestAPI
-      StageName: 'dev'
