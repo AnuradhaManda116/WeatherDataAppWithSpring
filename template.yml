@@ -83,7 +83,7 @@ Resources:
     Properties:
       RestApiId: !Ref weatherRestAPI
       ParentId: !GetAtt weatherRestAPI.RootResourceId
-      PathPart: '{proxy+}'
+      PathPart: '/weather/Hyderabad'
   ProxyResourceANY:
     Type: AWS::ApiGateway::Method
     Properties:
@@ -100,7 +100,6 @@ Resources:
     DependsOn: ProxyResourceANY
     Properties:
       RestApiId: !Ref weatherRestAPI
-      StageName: 'dummy'
   LambdaInvokPermissions:
     Type: AWS::Lambda::Permission
     Properties:
