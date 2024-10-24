@@ -118,7 +118,10 @@ Resources:
           Arn: !GetAtt LambdaFunctionSpringFunction.Arn
       State: ENABLED
       Name: SpringLambdaEvent
-
+  MyLogGroup:
+    Type: 'AWS::Logs::LogGroup'
+    Properties:
+      LogGroupName: !Sub '/aws/apigateway/${weatherRestAPI}'
   CloudWatchRole:
     Type: 'AWS::IAM::Role'
     Properties:
@@ -130,13 +133,49 @@ Resources:
             Service:
               - apigateway.amazonaws.com
           Action: 'sts:AssumeRole'
+      Policies:
+        - PolicyName: 'ApiGatewayLogsPolicy'
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: 'Allow'
+                Action:
+                  - 'logs:CreateLogGroup'
+                  - 'logs:CreateLogStream'
+                  - 'logs:DescribeLogGroups'
+                  - 'logs:DescribeLogStreams'
+                  - 'logs:PutLogEvents'
+                  - 'logs:GetLogEvents'
+                  - 'logs:FilterLogEvents'
+                Resource: '*'
       Path: /
       ManagedPolicyArns:
-      - >-
-        arn:aws:iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs
-  Account:
+        - >-
+         arn:aws:iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs
+
+  ApiGatewayAccount:
     Type: 'AWS::ApiGateway::Account'
     Properties:
-      CloudWatchRoleArn: !GetAtt 
-      - CloudWatchRole
-      - Arn
+      CloudWatchRoleArn: !GetAtt CloudWatchRole.Arn
+
+  MyApiStage:
+    Type: 'AWS::ApiGateway::Stage'
+    Properties:
+      StageName: 'dev'
+      RestApiId: !Ref weatherRestAPI
+      DeploymentId: !Ref MyApiDeployment
+      MethodSettings:
+        - ResourcePath: '/*'
+          HttpMethod: '*'
+          LoggingLevel: 'INFO'
+          DataTraceEnabled: true
+      AccessLogSetting:
+        DestinationArn: !GetAtt MyLogGroup.Arn
+        Format: 
+          '{"requestId":"$context.requestId","ip":"$context.identity.sourceIp","caller":"$context.identity.caller","user":"$context.identity.user","requestTime":"$context.requestTime","httpMethod":"$context.httpMethod","resourcePath":"$context.resourcePath","status":"$context.status","protocol":"$context.protocol","responseLength":"$context.responseLength"}'
+
+  MyApiDeployment:
+    Type: 'AWS::ApiGateway::Deployment'
+    Properties:
+      RestApiId: !Ref weatherRestAPI
+      StageName: 'dev'
