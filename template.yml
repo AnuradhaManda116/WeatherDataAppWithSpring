@@ -162,7 +162,7 @@ Resources:
       RestApiId: !Ref weatherRestAPI
       DeploymentId: !Ref MyApiDeployment
       MethodSettings:
-        - ResourcePath: "/*"
+        - ResourcePath: "/weather/Hyderabad"
           HttpMethod: GET
           MetricsEnabled: 'true'
           DataTraceEnabled: 'false'
