@@ -119,7 +119,7 @@ Resources:
   MyLogGroup:
     Type: 'AWS::Logs::LogGroup'
     Properties:
-      LogGroupName: !Sub '/aws/apigateway/welcome'
+      LogGroupName: !Sub '/aws/apigateway/${weatherRestAPI}'
   CloudWatchRole:
     Type: 'AWS::IAM::Role'
     Properties:
