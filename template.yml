@@ -93,7 +93,7 @@ Resources:
       AuthorizationType: NONE
       Integration:
         Type: AWS_PROXY
-        IntegrationHttpMethod: POST
+        IntegrationHttpMethod: GET
         Uri: !Sub arn:aws:apigateway:us-east-1:lambda:path/2015-03-31/functions/${LambdaFunctionSpringFunction.Arn}/invocations
   MyApiDeployment:
     Type: 'AWS::ApiGateway::Deployment'
@@ -119,7 +119,7 @@ Resources:
   MyLogGroup:
     Type: 'AWS::Logs::LogGroup'
     Properties:
-      LogGroupName: !Sub '/aws/apigateway/${weatherRestAPI}'
+      LogGroupName: !Sub '/aws/apigateway/welcome'
   CloudWatchRole:
     Type: 'AWS::IAM::Role'
     Properties:
@@ -146,7 +146,6 @@ Resources:
                   - 'logs:GetLogEvents'
                   - 'logs:FilterLogEvents'
                 Resource: '*'
-      Path: /
       ManagedPolicyArns:
         - >-
          arn:aws:iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs
@@ -162,6 +161,11 @@ Resources:
       StageName: 'dev'
       RestApiId: !Ref weatherRestAPI
       DeploymentId: !Ref MyApiDeployment
+      MethodSettings:
+        - ResourcePath: !Ref ProxyResource
+          HttpMethod: GET
+          MetricsEnabled: 'true'
+          DataTraceEnabled: 'false'
       AccessLogSetting:
         DestinationArn: !GetAtt MyLogGroup.Arn
         Format: 
